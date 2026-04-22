@@ -4,11 +4,13 @@ purchases_table = """
     CREATE TABLE IF NOT EXISTS purchases (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         purchase TEXT NOT NULL,
-        bought INTEGER DEFAULT 0
+        bought INTEGER DEFAULT 0,
+        quantity INTEGER DEFAULT 1
     )
 """
+
 # Create - создание записи
-insert_purchase = 'INSERT INTO purchases (purchase) VALUES (?)'
+insert_purchase = 'INSERT INTO purchases (purchase, quantity) VALUES (?, ?)'
 
 # Read - Просмотр записи
 select_purchases = 'SELECT * FROM purchases'

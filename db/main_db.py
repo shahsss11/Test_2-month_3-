@@ -12,17 +12,20 @@ def init_db():
     conn.close()
 
 
-def add_purchase(purchase):
+def add_purchase(purchase, quantity):
     conn = sqlite3.connect(path_db)
     cursor = conn.cursor()
-    cursor.execute(queries.insert_purchase, (purchase,))
+    cursor.execute(
+        "INSERT INTO purchases (purchase, quantity) VALUES (?, ?)",
+        (purchase, quantity)
+    )
     conn.commit()
     purchase_id = cursor.lastrowid
     conn.close()
     return purchase_id
 
 
-def update_purchase(purchase_id, new_purchase=None, bought=None):
+def update_purchase(purchase_id, new_purchase=None, bought=None, quantity=None):
     conn = sqlite3.connect(path_db)
     cursor = conn.cursor()
 
@@ -35,6 +38,12 @@ def update_purchase(purchase_id, new_purchase=None, bought=None):
             (bought, purchase_id)
         )
 
+    elif quantity is not None:
+        cursor.execute(
+            "UPDATE purchases SET quantity = ? WHERE id = ?",
+            (quantity, purchase_id)
+        )
+
     conn.commit()
     conn.close()
 
@@ -44,11 +53,11 @@ def get_purchase(filter_type):
     cursor = conn.cursor()
 
     if filter_type == 'all':
-        cursor.execute(queries.select_purchases)
+        cursor.execute("SELECT id, purchase, bought, quantity FROM purchases")
     elif filter_type == 'bought':
-        cursor.execute(queries.select_purchases_bought)
+        cursor.execute("SELECT id, purchase, bought, quantity FROM purchases WHERE bought = 1")
     elif filter_type == 'unbought':
-        cursor.execute(queries.select_purchases_unbought)
+        cursor.execute("SELECT id, purchase, bought, quantity FROM purchases WHERE bought = 0")
 
     purchases = cursor.fetchall()
     conn.close()
@@ -61,6 +70,7 @@ def delete_bought_purchases():
     cursor.execute("DELETE FROM purchases WHERE bought = 1")
     conn.commit()
     conn.close()
+
 
 def delete_purchase(purchase_id):
     conn = sqlite3.connect(path_db)
